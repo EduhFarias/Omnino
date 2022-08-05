@@ -53,7 +53,7 @@ def serial_motor(vel1, vel2, vel3, serial):
 class OmninoDriverNode(Node):
     def __init__(self):
         super().__init__('omnino_driver')
-        serial = serial.Serial('/dev/serial0', 9600)
+        self.ser = serial.Serial('/dev/serial0', 9600)
 
         self.declare_parameter("wheel_r", 0.2)
         self.declare_parameter("wheel_d", 1)
@@ -75,7 +75,7 @@ class OmninoDriverNode(Node):
         vel_2 = 1/self.r * (-1/2*vx - sqrt(3)/2*vy - self.d*w)
         vel_3 = 1/self.r * (-1/2*vx + sqrt(3)/2*vy - self.d*w)
 
-        serial_motor(vel_1, vel_2, vel_3, serial)
+        serial_motor(vel_1, vel_2, vel_3, self.ser)
 
 
 def main(args=None):
