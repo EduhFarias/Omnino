@@ -15,7 +15,7 @@ BACKWARD = b'\x62' 	# turn motor backward
 STOP = b'\x73'	      	# stop motor
 
 
-def serial_motor(vel1, vel2, vel3):
+def serial_motor(vel1, vel2, vel3, serial):
     serial.write(MOTOR1)
     if vel1 < 0:
         serial.write(struct.pack("B", vel1 * -1))
@@ -66,16 +66,16 @@ class OmninoDriverNode(Node):
         self.sub_ = self.create_subscription(
             Twist, 'cmd_vel', self.driver_callback, 10)
 
-        def driver_callback(self, cmd_vel):
-            vx = cmd_vel.linear.x
-            vy = cmd_vel.linear.y
-            w = cmd_vel.angular.z
+    def driver_callback(self, cmd_vel):
+        vx = cmd_vel.linear.x
+        vy = cmd_vel.linear.y
+        w = cmd_vel.angular.z
 
-            vel_1 = 1/self.r * (vx - self.d*w)
-            vel_2 = 1/self.r * (-1/2*vx - sqrt(3)/2*vy - self.d*w)
-            vel_3 = 1/self.r * (-1/2*vx + sqrt(3)/2*vy - self.d*w)
+        vel_1 = 1/self.r * (vx - self.d*w)
+        vel_2 = 1/self.r * (-1/2*vx - sqrt(3)/2*vy - self.d*w)
+        vel_3 = 1/self.r * (-1/2*vx + sqrt(3)/2*vy - self.d*w)
 
-            serial_motor(vel_1, vel_2, vel_3)
+        serial_motor(vel_1, vel_2, vel_3, serial)
 
 
 def main(args=None):
