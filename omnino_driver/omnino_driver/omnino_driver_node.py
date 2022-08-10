@@ -53,15 +53,15 @@ def serial_motor(vel1, vel2, vel3, serial):
 class OmninoDriverNode(Node):
     def __init__(self):
         super().__init__('omnino_driver')
-        self.ser = serial.Serial('/dev/serial0', 9600)
+        self.ser = serial.Serial('/dev/ttyS0', 9600)
 
-        self.declare_parameter("wheel_r", 0.2)
-        self.declare_parameter("wheel_d", 1)
+        self.declare_parameter("wheel_r", 0.02)
+        self.declare_parameter("robot_d", 0.07)
 
         self.r = self.get_parameter(
             "wheel_r").get_parameter_value().double_value
         self.d = self.get_parameter(
-            "wheel_d").get_parameter_value().double_value
+            "robot_d").get_parameter_value().double_value
 
         self.sub_ = self.create_subscription(
             Twist, 'cmd_vel', self.driver_callback, 10)
@@ -80,14 +80,10 @@ class OmninoDriverNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-
     omnino_driver_node = OmninoDriverNode()
-
     rclpy.spin(omnino_driver_node)
-
     omnino_driver_node.destroy_node()
     rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()
