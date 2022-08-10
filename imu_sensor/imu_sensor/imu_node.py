@@ -36,6 +36,8 @@ class ImuNode(Node):
 		accel_data = self.imu_sensor.get_accel_data()
 		gyro_data = self.imu_sensor.get_gyro_data()
 		
+		self.imu_msg.header.stamp = self.get_clock().now().to_msg()
+		
 		# Quaternion
 		#self.imu_msg.orientation.x =
 		#self.imu_msg.orientation.y = 
