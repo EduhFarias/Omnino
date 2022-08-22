@@ -9,7 +9,7 @@ from geometry_msgs.msg import Pose
 
 class KalmanSubscriber(Node):
 	def __init__(self):
-		super().__init__("kalman_filter")
+		super().__init__("kalman_node")
 		self.kalman = Kalman()
 		self.imu_msg = Imu()
 		self.aruco_msg = Pose()
@@ -42,9 +42,9 @@ class KalmanSubscriber(Node):
 
 def main(args=None):
 	rclpy.init(args=args)
-	subs = KalmanSubscriber()
-	rclpy.spin(subs)
-	subs.destroy_node()
+	node = KalmanSubscriber()
+	rclpy.spin(node)
+	node.destroy_node()
 	rclpy.shutdown()
 
 
