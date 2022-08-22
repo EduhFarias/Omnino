@@ -28,11 +28,13 @@ class KalmanNode(Node):
 		self.get_logger().info("Running kalman filter ...")
 		self.kalman.kalman(self.imu_msg, self.aruco_msg)
 
+		pose_est = self.kalman.x.A1
+		
 		pose = Pose()
-		pose.position.x = self.kalman.x[0][0]
-		pose.position.y = self.kalman.x[0][1]
+		pose.position.x = pose_est[0]
+		pose.position.y = pose_est[1]
 		pose.position.z = 0.0
-		q = tf_transformations.quaternion_from_euler([0, 0, self.kalman.x[0][2]])
+		q = tf_transformations.quaternion_from_euler(0, 0, pose_est[2])
 		pose.orientation.x = q[0]
 		pose.orientation.x = q[1]
 		pose.orientation.x = q[2]
