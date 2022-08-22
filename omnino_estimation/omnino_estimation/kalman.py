@@ -39,7 +39,13 @@ class Kalman:
 		print("pose do aruco", aruco_pose)
 		# tambem checar a funçao de quatertion para euler do transforms3d e substituir abaixo
 		if aruco_pose:
-			_, _, yaw = transforms3d.euler.quat2euler(aruco_pose.orientation, axes='xyzs')
+			_, _, yaw = transforms3d.euler.quat2euler(
+				[
+					aruco_pose.orientation.w,
+					aruco_pose.orientation.x,
+					aruco_pose.orientation.y,
+					aruco_pose.orientation.z
+				])
 			return np.matrix(
 				[
 					[aruco_pose.position.x],
