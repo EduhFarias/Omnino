@@ -7,7 +7,7 @@ import tf_transformations
 from sensor_msgs.msg import Imu
 from geometry_msgs.msg import Pose
 
-class KalmanSubscriber(Node):
+class KalmanNode(Node):
 	def __init__(self):
 		super().__init__("kalman_node")
 		self.kalman = Kalman()
@@ -42,7 +42,7 @@ class KalmanSubscriber(Node):
 
 def main(args=None):
 	rclpy.init(args=args)
-	node = KalmanSubscriber()
+	node = KalmanNode()
 	rclpy.spin(node)
 	node.destroy_node()
 	rclpy.shutdown()
