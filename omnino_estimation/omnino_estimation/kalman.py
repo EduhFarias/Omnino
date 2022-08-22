@@ -34,16 +34,16 @@ class Kalman:
 	def setControlMatrix(self, dt):
 		self.G = np.matrix([[dt**2, 0, 0], [0, dt**2, 0], [0, 0, dt]])
 
-	def getMeasurementVector(self, aruco_msg):
+	def getMeasurementVector(self, aruco_pose):
 		# checar o tipo da mensagem e crir condiçao coisa util
-		print("pose do aruco", aruco_msg)
+		print("pose do aruco", aruco_pose)
 		# tambem checar a funçao de quatertion para euler do transforms3d e substituir abaixo
-		if len(aruco_msg) > 0:
-			_, _, yaw = transforms3d.euler.quat2euler(aruco_msg.orientation, axes='xyzs')
+		if aruco_pose:
+			_, _, yaw = transforms3d.euler.quat2euler(aruco_pose.orientation, axes='xyzs')
 			return np.matrix(
 				[
-					[aruco_msg.pose.position.x],
-					[aruco_msg.pose.position.y],
+					[aruco_pose.position.x],
+					[aruco_pose.position.y],
 					[np.degrees(yaw)],
 				]
 			)
