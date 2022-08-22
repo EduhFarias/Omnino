@@ -109,3 +109,14 @@ class PlannerNode(Node):
 		pose.orientation.w = q[3]
 
 		self.pub_.publish(pose)
+
+def main(args=None):
+	rclpy.init(args=args)
+	node = PlannerNode()
+	rclpy.spin(node)
+	node.destroy_node()
+	rclpy.shutdown()
+
+
+if __name__ == "main":
+	main()
