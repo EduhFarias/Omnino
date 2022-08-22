@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-        	'kalman_subscriber = omnino_estimation.kalman_subscriber:main'
+        	'kalman_node = omnino_estimation.kalman_node:main'
 	],
     },
 )
