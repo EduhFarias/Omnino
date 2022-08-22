@@ -18,7 +18,15 @@ def generate_launch_description():
 			executable='omnino_driver_node'
 		),
 		Node(
+			package='omnino_estimation',
+			executable='kalman_subscriber'
+		),
+		Node(
 			package='ros2_aruco',
 			executable='aruco_node'
-		)
+		),
+		Node(
+			package='omnino_planner',
+			executable='planner_node'
+		),
 	])
