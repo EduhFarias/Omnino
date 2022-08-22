@@ -29,10 +29,10 @@ class KalmanNode(Node):
 		self.kalman.kalman(self.imu_msg, self.aruco_msg)
 
 		pose = Pose()
-		pose.position.x = self.kalman.x[0]
-		pose.position.y = self.kalman.x[1]
+		pose.position.x = self.kalman.x[0][0]
+		pose.position.y = self.kalman.x[0][1]
 		pose.position.z = 0.0
-		q = tf_transformations.quaternion_from_euler([0, 0, self.kalman.x[2]])
+		q = tf_transformations.quaternion_from_euler([0, 0, self.kalman.x[0][2]])
 		pose.orientation.x = q[0]
 		pose.orientation.x = q[1]
 		pose.orientation.x = q[2]
