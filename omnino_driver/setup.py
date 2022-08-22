@@ -16,7 +16,7 @@ setup(
     maintainer='Eduardo Henrique',
     maintainer_email='ehfs@ic.ufal.br',
     description='TODO: Package description',
-    license='Apacha License 2.0',
+    license='Apache License 2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
