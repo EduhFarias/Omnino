@@ -9,7 +9,6 @@ import tf_transformations
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import Pose
 from ros2_aruco_interfaces.msg import ArucoMarkers
-from ros2_aruco.utils import quaternion_from_euler, euler_from_rvec
 
 class ArucoNode(Node):
 	def __init__(self):
@@ -65,8 +64,7 @@ class ArucoNode(Node):
 
 				markers.poses.append(pose)
 				markers.ids.append(id[0])
-			self.get_logger().info('Publishing: "%s"' %
-								   ('Pose - x: {} y: {} z: {}').format(pose.position.x, pose.position.y, pose.position.z))
+			
 			self.pub_.publish(markers)
 
 def main(args=None):
