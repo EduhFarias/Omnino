@@ -20,8 +20,6 @@ class Kalman:
 		# Estimated measurement error covariance
 		self.R = np.matrix(np.diag(measurement_var))
 
-		self.imu_prev = None
-
 	def getControlVector(self, imu_msg):
 		return np.matrix(
 			[
@@ -56,14 +54,10 @@ class Kalman:
 		return np.matrix([[0], [0], [0]])
 
 	def kalman(self, imu_msg, aruco_msg):
-		if self.imu_prev == None:
-			dt = 0.5
-		else:
-			dt = imu_msg.header.stamp - self.imu_prev.header.stamp
+		dt = 0.5
 
 		# State prediction
 		self.u = self.getControlVector(imu_msg)
-		# self.get_logger().info('u: %s' % u)
 		self.setControlMatrix(dt)
 		x_hat = self.F @ self.x + self.G @ self.u
 
@@ -72,7 +66,6 @@ class Kalman:
 
 		# Innovation
 		self.y = self.getMeasurementVector(aruco_msg)
-		# self.get_logger().info('y: %s' % y)
 		v = self.y - self.H @ x_hat
 
 		# Innovation covariance
@@ -86,5 +79,3 @@ class Kalman:
 
 		# Covariance update
 		self.P = (np.eye(3) - K @ self.H) @ P_hat
-
-		self.imu_prev = imu_msg
