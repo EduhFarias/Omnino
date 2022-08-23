@@ -41,8 +41,6 @@ class PlannerNode(Node):
 		self.br = TransformBroadcaster(self)
 
 	def aruco_callback(self, aruco_msg):
-		self.get_logger().info('Aruco msg: "%s"' % aruco_msg)
-
 		if self.initialPose.position == -1.0:
 			self.get_logger().info("Setting initial pose")
 
@@ -65,7 +63,7 @@ class PlannerNode(Node):
 			t.transform.translation.y = aruco_msg.poses[0].position.y - self.initialPose.position.y
 			t.transform.translation.z = 0.0
 
-			q = self.quaternion_diff(self.initialPose, aruco_msg.poses[0])
+			q = quaternion_diff(self.initialPose, aruco_msg.poses[0])
 
 			t.transform.rotation.x = q[0]
 			t.transform.rotation.y = q[1]
@@ -77,8 +75,6 @@ class PlannerNode(Node):
 			self.pub_callback(aruco_msg.poses[0])
 
 	def imu_callback(self, imu_msg):
-		self.get_logger().info("IMU AFTER KALMAN: %s" % imu_msg)
-
 		t = TransformStamped()
 		t.header.stamp = self.get_clock().now().to_msg()
 		t.header.frame_id = "world"
@@ -116,7 +112,6 @@ def main(args=None):
 	rclpy.spin(node)
 	node.destroy_node()
 	rclpy.shutdown()
-
 
 if __name__ == "main":
 	main()
