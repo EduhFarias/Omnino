@@ -41,7 +41,7 @@ class PlannerNode(Node):
 		self.br = TransformBroadcaster(self)
 
 	def aruco_callback(self, aruco_msg):
-		if self.initialPose.position == -1.0:
+		if self.initialPose.position.z == -1.0:
 			self.get_logger().info("Setting initial pose")
 
 			self.initialPose.position.x = aruco_msg.poses[0].position.x
