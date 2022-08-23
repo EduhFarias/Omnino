@@ -61,8 +61,8 @@ class PlannerNode(Node):
 			t.header.frame_id = "world"
 			t.child_frame_id = "base_link"
 
-			t.transform.translation.x = aruco_msg.poses[0].position.x - self.pose.position.x
-			t.transform.translation.y = aruco_msg.poses[0].position.y - self.pose.position.y
+			t.transform.translation.x = aruco_msg.poses[0].position.x - self.initialPose.position.x
+			t.transform.translation.y = aruco_msg.poses[0].position.y - self.initialPose.position.y
 			t.transform.translation.z = 0.0
 
 			q = self.quaternion_diff(self.initialPose, aruco_msg.poses[0])
