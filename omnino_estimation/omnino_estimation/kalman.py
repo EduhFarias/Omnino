@@ -48,7 +48,7 @@ class Kalman:
 				[
 					[aruco_pose.position.x],
 					[aruco_pose.position.y],
-					[np.degrees(yaw)],
+					[yaw],
 				]
 			)
 		return np.matrix([[0], [0], [0]])
