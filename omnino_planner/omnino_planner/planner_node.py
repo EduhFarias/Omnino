@@ -34,6 +34,8 @@ class PlannerNode(Node):
 		self.initialPose.position.z = -1.0
 		self.previusPose = Pose()
 
+		self.goal = [5.0, 0.0, 1.0]
+
 		self.pub_ = self.create_publisher(Pose, "aruco_pose", 10)
 		self.sub_aruco_ = self.create_subscription(ArucoMarkers, "aruco_markers", self.aruco_callback, 10)
 		self.sub_imu_ = self.create_subscription(Pose, "imu_filtered", self.imu_callback, 10)
@@ -53,58 +55,56 @@ class PlannerNode(Node):
 			self.initialPose.rotation.w = aruco_msg.poses[0].orientation.w
 
 			self.previusPose = np.copy(self.initialPose)
+			self.sendTf('world', 'base_link', 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0)
 		else:
-			t = TransformStamped()
-			t.header.stamp = self.get_clock().now().to_msg()
-			t.header.frame_id = "world"
-			t.child_frame_id = "base_link"
-
-			t.transform.translation.x = aruco_msg.poses[0].position.x - self.initialPose.position.x
-			t.transform.translation.y = aruco_msg.poses[0].position.y - self.initialPose.position.y
-			t.transform.translation.z = 0.0
-
 			q = quaternion_diff(self.initialPose, aruco_msg.poses[0])
+			self.sendTf(
+				'world',
+				'base_link',
+				aruco_msg.poses[0].position.x - self.initialPose.position.x,
+				aruco_msg.poses[0].position.y - self.initialPose.position.y,
+				0.0,
+				q[0], q[1], q[2], q[3]
+				)
 
-			t.transform.rotation.x = q[0]
-			t.transform.rotation.y = q[1]
-			t.transform.rotation.z = q[2]
-			t.transform.rotation.w = q[3]
-
-			self.br.sendTransform(t)
-
-			self.pub_callback(aruco_msg.poses[0])
+			pose = Pose()
+			pose.position.x = aruco_msg.poses[0].position.x - self.previusPose.position.x
+			pose.position.x = aruco_msg.poses[0].position.y - self.previusPose.position.y
+			pose.position.z = 0.0
+			q = quaternion_diff(self.previusPose, aruco_msg.poses[0])
+			pose.orientation.x = q[0]
+			pose.orientation.y = q[1]
+			pose.orientation.z = q[2]
+			pose.orientation.w = q[3]
+			self.pub_.publish(pose)
 
 	def imu_callback(self, imu_msg):
+		self.sendTf(
+			'world',
+			'imu_filtered',
+			imu_msg.position.x,
+			imu_msg.position.y,
+			imu_msg.position.z,
+			imu_msg.orientation.x,
+			imu_msg.orientation.y,
+			imu_msg.orientation.z,
+			imu_msg.orientation.w
+		)
+		# talvez aqui fazer a checagem da pose
+
+	def sendTf(self, header_id, child_id, x, y, z, q0, q1, q2, q3):
 		t = TransformStamped()
 		t.header.stamp = self.get_clock().now().to_msg()
-		t.header.frame_id = "world"
-		t.child_frame_id = "imu_filtered"
-
-		t.transform.translation.x = imu_msg.position.x
-		t.transform.translation.y = imu_msg.position.y
-		t.transform.translation.z = imu_msg.position.z
-		t.transform.rotation.x = imu_msg.orientation.x
-		t.transform.rotation.y = imu_msg.orientation.y
-		t.transform.rotation.z = imu_msg.orientation.z
-		t.transform.rotation.w = imu_msg.orientation.w
-
+		t.header.frame_id = header_id
+		t.child_frame_id = child_id
+		t.transform.translation.x = x
+		t.transform.translation.y = y
+		t.transform.translation.z = z
+		t.transform.rotation.x = q0
+		t.transform.rotation.y = q1
+		t.transform.rotation.z = q2
+		t.transform.rotation.w = q3
 		self.br.sendTransform(t)
-
-	def pub_callback(self, aruco_msg):
-		pose = Pose()
-
-		pose.position.x = aruco_msg.position.x - self.previusPose.position.x
-		pose.position.x = aruco_msg.position.y - self.previusPose.position.y
-		pose.position.z = 0.0
-
-		q = quaternion_diff(self.previusPose, aruco_msg)
-
-		pose.orientation.x = q[0]
-		pose.orientation.y = q[1]
-		pose.orientation.z = q[2]
-		pose.orientation.w = q[3]
-
-		self.pub_.publish(pose)
 
 def main(args=None):
 	rclpy.init(args=args)
