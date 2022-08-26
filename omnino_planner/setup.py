@@ -18,6 +18,8 @@ setup(
     license="Apache License 2.0",
     tests_require=["pytest"],
     entry_points={
-        "console_scripts": ["omnino_planner = omnino_planner.planner_node:main"],
+        "console_scripts": [
+			"planner_node = omnino_planner.planner_node:main"
+		],
     },
 )
