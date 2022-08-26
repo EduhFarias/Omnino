@@ -36,9 +36,9 @@ class KalmanNode(Node):
 		pose.position.z = 0.0
 		q = tf_transformations.quaternion_from_euler(0, 0, pose_est[2])
 		pose.orientation.x = q[0]
-		pose.orientation.x = q[1]
-		pose.orientation.x = q[2]
-		pose.orientation.x = q[3]
+		pose.orientation.y = q[1]
+		pose.orientation.z = q[2]
+		pose.orientation.w = q[3]
 
 		self.pub_.publish(pose)
 
