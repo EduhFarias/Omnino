@@ -19,7 +19,7 @@ def generate_launch_description():
 		),
 		Node(
 			package='omnino_estimation',
-			executable='kalman_subscriber'
+			executable='kalman_node'
 		),
 		Node(
 			package='ros2_aruco',
