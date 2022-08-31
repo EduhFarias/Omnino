@@ -39,7 +39,7 @@ class PlannerNode(Node):
 
 		self.declare_parameter('path', 'linear')
 
-		path_param = self.get_paramater('path').get_parameter_value().string_value
+		path_param = self.get_parameter('path').get_parameter_value().string_value
 
 		if path_param == 'curve':
 			self.path = []
