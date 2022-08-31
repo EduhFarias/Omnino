@@ -64,7 +64,7 @@ class PlannerNode(Node):
 			# Linear path
 			self.path = [
 				np.linspace(0.0, 0.0, 50),
-				np.linspace(0.0, 3.0, 50),
+				np.linspace(0.0, 1.0, 50),
 				np.linspace(0.0, 0.0, 50)
 			]
 

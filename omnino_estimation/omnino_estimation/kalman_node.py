@@ -46,8 +46,8 @@ class KalmanNode(Node):
 
 	def isStopped(self, imu):
 		return np.allclose(
-			[self.imu_msg.position.x, self.imu_msg.position.y, self.imu_msg.orientation.z],
-			[imu.position.x, imu.position.y, imu.orientation.z],
+			[self.imu_msg.linear_acceleration.x, self.imu_msg.linear_acceleration.y, self.imu_msg.angular_velocity.z],
+			[imu.linear_acceleration.x, imu.linear_acceleration.y, imu.angular_velocity.z],
 			0.1,
 			0.1
 		)
