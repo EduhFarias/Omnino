@@ -160,7 +160,7 @@ class PlannerNode(Node):
 
 	def isClose(self, imu):
 		return np.allclose(
-			self.path,
+			[self.path[0][self.i], self.path[1][self.i], self.path[2][self.i]],
 			[imu.position.x, imu.position.y, imu.orientation.z],
 			0.1,
 			0.1,
