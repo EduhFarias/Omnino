@@ -3,6 +3,7 @@ from rclpy.node import Node
 
 from omnino_estimation.kalman import Kalman
 import tf_transformations
+import numpy as np
 
 from sensor_msgs.msg import Imu
 from geometry_msgs.msg import Pose
@@ -18,8 +19,9 @@ class KalmanNode(Node):
 		self.pub_ = self.create_publisher(Pose, "imu_filtered", 10)
 
 	def imu_callback(self, imu_msg):
-		self.imu_msg = imu_msg
-		self.kalman_callback()
+		if not self.isStopped(imu_msg):
+			self.imu_msg = imu_msg
+			self.kalman_callback()
 
 	def aruco_callback(self, aruco_msg):
 		self.aruco_msg = aruco_msg
@@ -42,13 +44,20 @@ class KalmanNode(Node):
 
 		self.pub_.publish(pose)
 
+	def isStopped(self, imu):
+		return np.allclose(
+			[self.imu_msg.position.x, self.imu_msg.position.y, self.imu_msg.orientation.z],
+			[imu.position.x, imu.position.y, imu.orientation.z],
+			0.1,
+			0.1
+		)
+
 def main(args=None):
 	rclpy.init(args=args)
 	node = KalmanNode()
 	rclpy.spin(node)
 	node.destroy_node()
 	rclpy.shutdown()
-
 
 if __name__ == "main":
 	main()

@@ -25,8 +25,4 @@ def generate_launch_description():
 			package='ros2_aruco',
 			executable='aruco_node'
 		),
-		Node(
-			package='omnino_planner',
-			executable='planner_node'
-		),
 	])
