@@ -19,9 +19,8 @@ class KalmanNode(Node):
 		self.pub_ = self.create_publisher(Pose, "imu_filtered", 10)
 
 	def imu_callback(self, imu_msg):
-		if not self.isStopped(imu_msg):
-			self.imu_msg = imu_msg
-			self.kalman_callback()
+		self.imu_msg = imu_msg
+		self.kalman_callback()
 
 	def aruco_callback(self, aruco_msg):
 		self.aruco_msg = aruco_msg
