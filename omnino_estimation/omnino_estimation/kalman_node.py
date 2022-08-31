@@ -12,15 +12,20 @@ class KalmanNode(Node):
 	def __init__(self):
 		super().__init__("kalman_node")
 		self.kalman = Kalman()
-		self.imu_msg = Imu()
 		self.aruco_msg = Pose()
+		self.imu_msg = Imu()
+		self.imu_msg.linear_acceleration.x = 0.0
+		self.imu_msg.linear_acceleration.y = 0.0
+		self.imu_msg.angular_velocity.z = 0.0
+
 		self.imu_sub = self.create_subscription(Imu, "imu", self.imu_callback, 10)
 		self.aruco_sub = self.create_subscription(Pose, "aruco_pose", self.aruco_callback, 10)
 		self.pub_ = self.create_publisher(Pose, "imu_filtered", 10)
 
 	def imu_callback(self, imu_msg):
-		self.imu_msg = imu_msg
-		self.kalman_callback()
+		if not self.isStopped(imu_msg):
+			self.imu_msg = imu_msg
+			self.kalman_callback()
 
 	def aruco_callback(self, aruco_msg):
 		self.aruco_msg = aruco_msg
