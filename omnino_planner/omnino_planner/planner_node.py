@@ -72,7 +72,7 @@ class PlannerNode(Node):
 		self.pub_cmd_vel_ = self.create_publisher(Twist, 'cmd_vel', 10)
 
 		self.sub_aruco_ = self.create_subscription(ArucoMarkers, "aruco_markers", self.aruco_callback, 10)
-		self.sub_imu_ = self.create_subscription(Pose, "estimated_pose", self.pose_callback, 10)
+		self.sub_pose_ = self.create_subscription(Pose, "estimated_pose", self.pose_callback, 10)
 
 		self.br = TransformBroadcaster(self)
 
@@ -112,17 +112,17 @@ class PlannerNode(Node):
 			pose.orientation.w = q[3]
 			self.pub_pose_.publish(pose)
 
-	def pose_callback(self, imu_msg):
+	def pose_callback(self, pose_msg):
 		self.sendTf(
 			'world',
 			'estimated_pose',
-			imu_msg.position.x,
-			imu_msg.position.y,
-			imu_msg.position.z,
-			imu_msg.orientation.x,
-			imu_msg.orientation.y,
-			imu_msg.orientation.z,
-			imu_msg.orientation.w
+			pose_msg.position.x,
+			pose_msg.position.y,
+			pose_msg.position.z,
+			pose_msg.orientation.x,
+			pose_msg.orientation.y,
+			pose_msg.orientation.z,
+			pose_msg.orientation.w
 		)
 
 		vel = Twist()
@@ -133,13 +133,13 @@ class PlannerNode(Node):
 		vel.angular.y = 0.0
 		vel.angular.z = 0.0
 
-		if self.isClose(imu_msg) or self.i == len(self.path[0])-1:
+		if self.isClose(pose_msg) or self.i == len(self.path[0])-1:
 			self.pub_cmd_vel_.publish(vel)
 			return
 		
-		vel.linear.x = (self.path[0][self.i] - imu_msg.position.x) / self.dt
-		vel.linear.y = (self.path[1][self.i] - imu_msg.position.y) / self.dt
-		_, _, z = tf_transformations.euler_from_quaternion([imu_msg.orientation.x, imu_msg.orientation.y, imu_msg.orientation.z, imu_msg.orientation.w])
+		vel.linear.x = (self.path[0][self.i] - pose_msg.position.x) / self.dt
+		vel.linear.y = (self.path[1][self.i] - pose_msg.position.y) / self.dt
+		_, _, z = tf_transformations.euler_from_quaternion([pose_msg.orientation.x, pose_msg.orientation.y, pose_msg.orientation.z, pose_msg.orientation.w])
 		vel.angular.z = (self.path[2][self.i] - z) / self.dt
 		self.i += 1
 		self.pub_cmd_vel_.publish(vel)
@@ -158,10 +158,10 @@ class PlannerNode(Node):
 		t.transform.rotation.w = q3
 		self.br.sendTransform(t)
 
-	def isClose(self, imu):
+	def isClose(self, pose):
 		return np.allclose(
 			[self.path[0][self.i], self.path[1][self.i], self.path[2][self.i]],
-			[imu.position.x, imu.position.y, imu.orientation.z],
+			[pose.position.x, pose.position.y, pose.orientation.z],
 			0.1,
 			0.1,
 		)
