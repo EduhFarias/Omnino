@@ -72,7 +72,7 @@ class PlannerNode(Node):
 		self.pub_cmd_vel_ = self.create_publisher(Twist, 'cmd_vel', 10)
 
 		self.sub_aruco_ = self.create_subscription(ArucoMarkers, "aruco_markers", self.aruco_callback, 10)
-		self.sub_imu_ = self.create_subscription(Pose, "imu_filtered", self.imu_callback, 10)
+		self.sub_imu_ = self.create_subscription(Pose, "estimated_pose", self.pose_callback, 10)
 
 		self.br = TransformBroadcaster(self)
 
@@ -112,10 +112,10 @@ class PlannerNode(Node):
 			pose.orientation.w = q[3]
 			self.pub_pose_.publish(pose)
 
-	def imu_callback(self, imu_msg):
+	def pose_callback(self, imu_msg):
 		self.sendTf(
 			'world',
-			'imu_filtered',
+			'estimated_pose',
 			imu_msg.position.x,
 			imu_msg.position.y,
 			imu_msg.position.z,
