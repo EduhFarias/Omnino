@@ -20,7 +20,7 @@ class KalmanNode(Node):
 
 		self.imu_sub = self.create_subscription(Imu, "imu", self.imu_callback, 10)
 		self.aruco_sub = self.create_subscription(Pose, "aruco_pose", self.aruco_callback, 10)
-		self.pub_ = self.create_publisher(Pose, "imu_filtered", 10)
+		self.pub_ = self.create_publisher(Pose, "estimated_pose", 10)
 
 	def imu_callback(self, imu_msg):
 		if not self.isStopped(imu_msg):
