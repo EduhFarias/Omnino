@@ -72,7 +72,7 @@ class OmninoDriverNode(Node):
 		vel_2 = 1/self.r * (-1/2*vx - sqrt(3)/2*vy - self.d*w)
 		vel_3 = 1/self.r * (-1/2*vx + sqrt(3)/2*vy - self.d*w)
 
-		serial_motor(int(vel_1), int(vel_2), int(vel_3), self.ser)
+		serial_motor(vel_1, vel_2, vel_3, self.ser)
 
 
 def main(args=None):
