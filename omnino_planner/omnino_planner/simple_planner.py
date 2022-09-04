@@ -144,11 +144,19 @@ class PlannerNode(Node):
 
 	def cmd_vel_callback(self):
 		vel = Twist()
-		vel.linear.x = self.path[0][self.i]
-		vel.linear.y = self.path[1][self.i]
+		vel.linear.x = 0.0
+		vel.linear.y = 0.0
 		vel.linear.z = 0.0
 		vel.angular.x = 0.0
 		vel.angular.y = 0.0
+		vel.angular.z = 0.0
+
+		if self.i == len(self.path[0])-1:
+			self.pub_cmd_vel_.publish(vel)
+			return
+		
+		vel.linear.x = self.path[0][self.i]
+		vel.linear.y = self.path[1][self.i]
 		vel.angular.z = self.path[2][self.i]
 		self.pub_cmd_vel_.publish(vel)
 		self.i += 1
