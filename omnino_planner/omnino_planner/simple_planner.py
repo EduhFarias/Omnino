@@ -4,8 +4,10 @@ from rclpy.node import Node
 import numpy as np
 from tf2_ros import TransformBroadcaster
 import tf_transformations
+import json
 
 from geometry_msgs.msg import Pose, TransformStamped, Twist
+from sensor_msgs.msg import Imu
 from ros2_aruco_interfaces.msg import ArucoMarkers
 
 def quaternion_diff(pose1, pose2):
@@ -34,6 +36,11 @@ class PlannerNode(Node):
 		self.initialPose.position.z = -1.0
 		self.previusPose = Pose()
 
+		self.ax = []
+		self.ay = []
+		self.vz = []
+		self.saved = False
+
 		self.i = 1
 		self.dt = 0.5
 
@@ -42,21 +49,27 @@ class PlannerNode(Node):
 		path_param = self.get_parameter('path').get_parameter_value().string_value
 
 		if path_param == 'curve':
-			self.path = []
+			alpha = 1
+			t = np.linspace(0, np.pi, 100)
+			self.path = [
+				alpha * (-1) * np.sqrt(2) * (np.sin(t) * (np.sin(t)**2 + 2 * np.cos(t)**2 + 1)) / (np.sin(t)**2 + 1)**2,
+				alpha * (-1) * np.sqrt(2) * (np.sin**2(t) + np.sin**4(t) + np.cos**2(t) (-1 + np.sin**2(t))) / (np.sin(t)**2 + 1)**2,
+				np.linspace(0.0, 0.0, 100)
+			]
 
 		elif path_param == 'lemniscate':
 			alpha = 1
 			t = np.linspace(0, 2*np.pi, 100)
 			self.path = [
-				alpha * np.sqrt(2) * np.cos(t) / (np.sin(t)**2 + 1),
-				alpha * np.sqrt(2) * np.cos(t) * np.sin(t) / (np.sin(t)**2 + 1),
+				alpha * (-1) * np.sqrt(2) * (np.sin(t) * (np.sin(t)**2 + 2 * np.cos(t)**2 + 1)) / (np.sin(t)**2 + 1)**2,
+				alpha * (-1) * np.sqrt(2) * (np.sin(t)**2 + np.sin(t)**4 + np.cos(t)**2 * (-1 + np.sin(t)**2)) / (np.sin(t)**2 + 1)**2,
 				np.linspace(0.0, 0.0, 100)
 			]
 
 		elif path_param == 'L':
 			self.path = [
-				np.append(np.linspace(0.0, 0.0, 50), np.linspace(0.0, 1.0, 50)),
-				np.append(np.linspace(0.0, 3.0, 50), np.linspace(3.0, 3.0, 50)),
+				np.append(np.linspace(0.0, 0.0, 50), np.linspace(0.0, 0.4, 50)),
+				np.append(np.linspace(0.0, 1.0, 50), np.linspace(1.0, 1.0, 50)),
 				np.linspace(0.0, 0.0, 100)
 			]
 
@@ -73,6 +86,8 @@ class PlannerNode(Node):
 
 		self.sub_aruco_ = self.create_subscription(ArucoMarkers, "aruco_markers", self.aruco_callback, 10)
 		self.sub_pose_ = self.create_subscription(Pose, "estimated_pose", self.pose_callback, 10)
+		self.timer = self.create_timer(0.5, self.cmd_vel_callback)
+		self.sub_imu_ = self.create_subscription(Imu, "imu", self.imu_callback, 10)
 
 		self.br = TransformBroadcaster(self)
 
@@ -127,24 +142,29 @@ class PlannerNode(Node):
 			pose_msg.orientation.w
 		)
 
+	def cmd_vel_callback(self):
 		vel = Twist()
-		vel.linear.x = 0.0
-		vel.linear.y = 0.0
+		vel.linear.x = self.path[0][self.i]
+		vel.linear.y = self.path[1][self.i]
 		vel.linear.z = 0.0
 		vel.angular.x = 0.0
 		vel.angular.y = 0.0
-		vel.angular.z = 0.0
-
-		if self.isClose(pose_msg) or self.i == len(self.path[0])-1:
-			self.pub_cmd_vel_.publish(vel)
-			return
-		
-		vel.linear.x = (self.path[0][self.i] - pose_msg.position.x) / self.dt
-		vel.linear.y = (self.path[1][self.i] - pose_msg.position.y) / self.dt
-		_, _, z = tf_transformations.euler_from_quaternion([pose_msg.orientation.x, pose_msg.orientation.y, pose_msg.orientation.z, pose_msg.orientation.w])
-		vel.angular.z = (self.path[2][self.i] - z) / self.dt
-		self.i += 1
+		vel.angular.z = self.path[2][self.i]
 		self.pub_cmd_vel_.publish(vel)
+		self.i += 1
+
+	def imu_callback(self, imu_msg):
+		if self.saved:
+			return
+		if self.i == len(self.path[0]) - 1:
+			with open('imu-' + self.get_parameter('path').get_parameter_value().string_value + '.json', 'w') as outp:
+				json.dump({'x': self.ax, 'y': self.ay, 'z': self.vz}, outp)
+			self.saved = True
+		else:
+			self.ax.append(imu_msg.linear_acceleration.x)
+			self.ay.append(imu_msg.linear_acceleration.y)
+			self.vz.append(imu_msg.angular_velocity.z)
+		
 
 	def sendTf(self, header_id, child_id, x, y, z, q0, q1, q2, q3):
 		t = TransformStamped()
@@ -159,14 +179,6 @@ class PlannerNode(Node):
 		t.transform.rotation.z = q2
 		t.transform.rotation.w = q3
 		self.br.sendTransform(t)
-
-	def isClose(self, pose):
-		return np.allclose(
-			[self.path[0][self.i], self.path[1][self.i], self.path[2][self.i]],
-			[pose.position.x, pose.position.y, pose.orientation.z],
-			0.1,
-			0.1,
-		)
 
 def main(args=None):
 	rclpy.init(args=args)

@@ -19,7 +19,8 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-			"planner_node = omnino_planner.planner_node:main"
+			"planner_node = omnino_planner.planner_node:main",
+            "simple_planner = omnino_planner.simple_planner:main"
 		],
     },
 )

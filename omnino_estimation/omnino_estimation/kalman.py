@@ -11,9 +11,10 @@ class Kalman:
 		self.y = np.matrix(np.zeros(3))  # Measurement vector
 		self.H = np.matrix(np.eye(3))  # Observation matrix
 
-		process_var = [0.002, 0.004, 0.008]
+		process_var = [0.02, 0.04, 0.08]
+		# process_var = [0.002, 0.004, 0.008]
 		# process_var = [0.0001, 0.0002, 0.0005] caso seja da posiçao e nao accel
-		measurement_var = [1, 1, 1]
+		measurement_var = [0.1, 0.1, 0.1]
 
 		# Estimated process error covariance
 		self.V = np.matrix(np.diag(process_var))
