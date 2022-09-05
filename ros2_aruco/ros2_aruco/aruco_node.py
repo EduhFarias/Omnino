@@ -42,7 +42,7 @@ class ArucoNode(Node):
 
 		markers = ArucoMarkers()
 		markers.header.stamp = img_msg.header.stamp
-
+		# ajustar aqui
 		(corners, ids, rejected) = cv2.aruco.detectMarkers(cv_image, self.aruco_dict, parameters=self.aruco_params)
 
 		if ids is not None:
