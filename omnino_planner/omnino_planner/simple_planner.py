@@ -98,10 +98,10 @@ class PlannerNode(Node):
 			self.initialPose.position.x = aruco_msg.poses[0].position.x
 			self.initialPose.position.y = aruco_msg.poses[0].position.y
 			self.initialPose.position.z = 0.0
-			self.initialPose.rotation.x = aruco_msg.poses[0].orientation.x
-			self.initialPose.rotation.y = aruco_msg.poses[0].orientation.y
-			self.initialPose.rotation.z = aruco_msg.poses[0].orientation.z
-			self.initialPose.rotation.w = aruco_msg.poses[0].orientation.w
+			self.initialPose.orientation.x = aruco_msg.poses[0].orientation.x
+			self.initialPose.orientation.y = aruco_msg.poses[0].orientation.y
+			self.initialPose.orientation.z = aruco_msg.poses[0].orientation.z
+			self.initialPose.orientation.w = aruco_msg.poses[0].orientation.w
 
 			self.previusPose = np.copy(self.initialPose)
 			self.sendTf('world', 'base_link', 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0)
