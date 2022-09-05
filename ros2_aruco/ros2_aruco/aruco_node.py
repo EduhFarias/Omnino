@@ -42,7 +42,7 @@ class ArucoNode(Node):
 
 		markers = ArucoMarkers()
 		markers.header.stamp = img_msg.header.stamp
-		# ajustar aqui
+		# FAZER COMO ESTA NO ROBO PARA CRIAR TOPICO DE IMAGEM COM TAGS DETECTADAS
 		(corners, ids, rejected) = cv2.aruco.detectMarkers(cv_image, self.aruco_dict, parameters=self.aruco_params)
 
 		if ids is not None:
