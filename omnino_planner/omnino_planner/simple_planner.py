@@ -118,7 +118,7 @@ class PlannerNode(Node):
 
 			pose = Pose()
 			pose.position.x = aruco_msg.poses[0].position.x - self.previusPose.position.x
-			pose.position.x = aruco_msg.poses[0].position.y - self.previusPose.position.y
+			pose.position.y = aruco_msg.poses[0].position.y - self.previusPose.position.y
 			pose.position.z = 0.0
 			q = quaternion_diff(self.previusPose, aruco_msg.poses[0])
 			pose.orientation.x = q[0]
