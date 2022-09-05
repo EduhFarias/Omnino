@@ -53,7 +53,7 @@ class PlannerNode(Node):
 			t = np.linspace(0, np.pi, 100)
 			self.path = [
 				alpha * (-1) * np.sqrt(2) * (np.sin(t) * (np.sin(t)**2 + 2 * np.cos(t)**2 + 1)) / (np.sin(t)**2 + 1)**2,
-				alpha * (-1) * np.sqrt(2) * (np.sin**2(t) + np.sin**4(t) + np.cos**2(t) (-1 + np.sin**2(t))) / (np.sin(t)**2 + 1)**2,
+				alpha * (-1) * np.sqrt(2) * (np.sin(t)**2 + np.sin(t)**4 + np.cos(t)**2 * (-1 + np.sin(t)**2)) / (np.sin(t)**2 + 1)**2,
 				np.linspace(0.0, 0.0, 100)
 			]
 
