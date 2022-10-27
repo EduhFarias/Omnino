@@ -88,8 +88,8 @@ class PlannerNode(Node):
 		# tratar qual o id ou ids serão utilizados aqui, caso so um mesmo: poses[0] -> .position e .orientation
 		
 		# Vector-Quaternion: World-ArUco
-		t_wa = np.array(self.origin.position)
-		q_wa = np.array(self.origin.orientation)
+		t_wa = np.array([self.origin.position.x, self.origin.position.y, self.origin.position.z])
+		q_wa = np.array([self.origin.orientation.x, self.origin.orientation.y, self.origin.orientation.z, self.origin.orientation.w])
 
 		# Vector-Quaternion: Robot-ArUco
 		t_ra = np.array([aruco_msg.poses[0].position.x, aruco_msg.poses[0].position.y, aruco_msg.poses[0].position.z])
