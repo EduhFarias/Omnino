@@ -18,35 +18,35 @@ STOP = b'\x73'	      	# stop motor
 def serial_motor(vel1, vel2, vel3, serial):
 	serial.write(MOTOR1)
 	if vel1 < 0:
-		serial.write(struct.pack("d", vel1 * -1))
+		serial.write(struct.pack("B", vel1 * -1))
 		serial.write(FOWARD)
 	if vel1 > 0:
-		serial.write(struct.pack("d", vel1))
+		serial.write(struct.pack("B", vel1))
 		serial.write(BACKWARD)
 	if vel1 == 0:
-		serial.write(struct.pack("d", 0))
+		serial.write(struct.pack("B", 0))
 		serial.write(STOP)
 
 	serial.write(MOTOR2)
 	if vel2 < 0:
-		serial.write(struct.pack("d", vel2 * -1))
+		serial.write(struct.pack("B", vel2 * -1))
 		serial.write(FOWARD)
 	if vel2 > 0:
-		serial.write(struct.pack("d", vel2))
+		serial.write(struct.pack("B", vel2))
 		serial.write(BACKWARD)
 	if vel2 == 0:
-		serial.write(struct.pack("d", 0))
+		serial.write(struct.pack("B", 0))
 		serial.write(STOP)
 
 	serial.write(MOTOR3)
 	if vel3 < 0:
-		serial.write(struct.pack("d", vel3 * -1))
+		serial.write(struct.pack("B", vel3 * -1))
 		serial.write(FOWARD)
 	if vel3 > 0:
-		serial.write(struct.pack("d", vel3))
+		serial.write(struct.pack("B", vel3))
 		serial.write(BACKWARD)
 	if vel3 == 0:
-		serial.write(struct.pack("d", 0))
+		serial.write(struct.pack("B", 0))
 		serial.write(STOP)
 
 
@@ -72,7 +72,7 @@ class OmninoDriverNode(Node):
 		vel_2 = 1/self.r * (-1/2*vx - sqrt(3)/2*vy - self.d*w)
 		vel_3 = 1/self.r * (-1/2*vx + sqrt(3)/2*vy - self.d*w)
 
-		serial_motor(vel_1, vel_2, vel_3, self.ser)
+		serial_motor(int(vel_1), int(vel_2), int(vel_3), self.ser)
 
 
 def main(args=None):
