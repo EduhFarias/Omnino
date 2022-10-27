@@ -49,33 +49,33 @@ class ArucoNode(Node):
 		(corners, ids, rejected) = cv2.aruco.detectMarkers(cv_image, self.aruco_dict, parameters=self.aruco_params)
 
 		if ids is not None:
-            rvecs, tvecs, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners, self.marker_size, self.calibration, self.distortion)
+			rvecs, tvecs, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners, self.marker_size, self.calibration, self.distortion)
 
-            for i, id in enumerate(ids):
-                theta = np.linalg.norm(rvecs[i])
-                n = rvecs[i]/theta
-                qra = tf_transformations.quaternion_about_axis(theta, n)
+			for i, id in enumerate(ids):
+				theta = np.linalg.norm(rvecs[i])
+				n = rvecs[i]/theta
+				qra = tf_transformations.quaternion_about_axis(theta, n)
 
-                pose = Pose()
-                pose.position.x = tvecs[i][0][0]
-                pose.position.y = tvecs[i][0][1]
-                pose.position.z = tvecs[i][0][2]
-                pose.orientation.x = q_ra[0]
-                pose.orientation.y = q_ra[1]
-                pose.orientation.z = q_ra[2]
-                pose.orientation.w = q_ra[3]
-                markers.poses.append(pose)
-                markers.ids.append(id[0])
+				pose = Pose()
+				pose.position.x = tvecs[i][0][0]
+				pose.position.y = tvecs[i][0][1]
+				pose.position.z = tvecs[i][0][2]
+				pose.orientation.x = q_ra[0]
+				pose.orientation.y = q_ra[1]
+				pose.orientation.z = q_ra[2]
+				pose.orientation.w = q_ra[3]
+				markers.poses.append(pose)
+				markers.ids.append(id[0])
 
-                cv2.aruco.drawDetectedMarkers(cv_image, corners)
-                cv2.drawFrameAxes(cv_image, self.calibration, self.distortion, rvecs[i], tvecs[i], 0.01)
+				cv2.aruco.drawDetectedMarkers(cv_image, corners)
+				cv2.drawFrameAxes(cv_image, self.calibration, self.distortion, rvecs[i], tvecs[i], 0.01)
 
-            for(markerCorner, markerID) in zip(corners, ids):
-                (topLeft, _, _, _) = markerCorner.reshape((4,2))
-                cv2.putText(cv_image, str(markerID), (int(topLeft[0]), int(topLeft[1]) - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+			for(markerCorner, markerID) in zip(corners, ids):
+				(topLeft, _, _, _) = markerCorner.reshape((4,2))
+				cv2.putText(cv_image, str(markerID), (int(topLeft[0]), int(topLeft[1]) - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-            self.pub_img_.publish(self.cv_bridge.cv2_to_imgmsg(cv_image, 'bgr8'))
-            self.pub_.publish(markers)
+			self.pub_img_.publish(self.cv_bridge.cv2_to_imgmsg(cv_image, 'bgr8'))
+			self.pub_.publish(markers)
 
 def main(args=None):
 	rclpy.init(args=args)

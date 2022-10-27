@@ -32,7 +32,7 @@ class KalmanNode(Node):
 
 	def kalman_callback(self):
 		self.get_logger().info("Running kalman filter ...") # remover
-		self.get_logger().info("Aruco pose: {}".format(this.aruco_msg)) # remover apos testar
+		self.get_logger().info("Aruco pose: {}".format(self.aruco_msg)) # remover apos testar
 		self.kalman.kalman(self.imu_msg, self.aruco_msg)
 
 		pose_est = self.kalman.x.A1

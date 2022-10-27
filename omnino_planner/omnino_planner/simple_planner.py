@@ -83,7 +83,7 @@ class PlannerNode(Node):
 		self.br = TransformBroadcaster(self)
 
 	def aruco_callback(self, aruco_msg):
-		self.get_logger().info("Aruco msg: {}".format(this.aruco_msg)) # remover apos testar
+		self.get_logger().info("Aruco msg: {}".format(self.aruco_msg)) # remover apos testar
 		
 		# Vector-Quaternion: World-ArUco
 		t_wa = np.array(self.origin.position)
@@ -95,7 +95,7 @@ class PlannerNode(Node):
 
 		# Vector-Quaternion: World-Robot
 		q_wr = tf_transformations.quaternion_multiply(q_wa, tf_transformations.quaternion_inverse(q_ra))
-		t_wr = t_wa - this.qv_mult(q_wr, t_ra)
+		t_wr = t_wa - self.qv_mult(q_wr, t_ra)
 
 		aruco_pose = Pose()
 		aruco_pose.position.x = t_wr[0]
