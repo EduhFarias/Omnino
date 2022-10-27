@@ -26,46 +26,56 @@ class ArucoNode(Node):
 		image_topic = self.get_parameter(
 			"image_topic").get_parameter_value().string_value
 
-		self.pub_ = self.create_publisher(ArucoMarkers, 'aruco_markers', 10)
 		self.cv_bridge = CvBridge()
+
 		self.aruco_dict = cv2.aruco.Dictionary_get(aruco_dict_id)
 		self.aruco_params = cv2.aruco.DetectorParameters_create()
-		self.calibration = np.array([[584.32262583, 0.0, 253.41645929], [
-									0.0, 574.60800033, 233.93778173], [0.0, 0.0, 1.0]])
+
+		self.calibration = np.array([[570.99457492, 0.0, 325.64860801], [
+									0.0, 434.016448, 234.74391119], [0.0, 0.0, 1.0]])
 		self.distortion = np.array(
-			[[0.33706852, -1.65778338, -0.00908046, -0.04888188, 3.89528563]])
+			[[2.18105604, -8.03481164, -0.25181316, 0.21993668, 20.62316516]])
 
 		self.create_subscription(Image, image_topic, self.image_callback, 10)
+		self.pub_ = self.create_publisher(ArucoMarkers, 'aruco_markers', 10)
+		self.pub_img_ = self.create_publisher(Image, '/camera/image_aruco', 10)
 
 	def image_callback(self, img_msg):
 		cv_image = self.cv_bridge.imgmsg_to_cv2(img_msg)
 
 		markers = ArucoMarkers()
 		markers.header.stamp = img_msg.header.stamp
-		# FAZER COMO ESTA NO ROBO PARA CRIAR TOPICO DE IMAGEM COM TAGS DETECTADAS
+
 		(corners, ids, rejected) = cv2.aruco.detectMarkers(cv_image, self.aruco_dict, parameters=self.aruco_params)
 
 		if ids is not None:
-			rvecs, tvecs, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners, self.marker_size, self.calibration, self.distortion)
+            rvecs, tvecs, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners, self.marker_size, self.calibration, self.distortion)
 
-			for i, id in enumerate(ids):
-				pose = Pose()
-				pose.position.x = tvecs[i][0][0]
-				pose.position.y = tvecs[i][0][1]
-				pose.position.z = tvecs[i][0][2]
-				self.get_logger().info('Publishing: "%s"' % ('id: %d' % id))
-				(row, pitch, yaw) = tf_transformations.euler_from_matrix(cv2.Rodrigues(rvecs[i])[0])
+            for i, id in enumerate(ids):
+                theta = np.linalg.norm(rvecs[i])
+                n = rvecs[i]/theta
+                qra = tf_transformations.quaternion_about_axis(theta, n)
 
-				quaternion = tf_transformations.quaternion_from_euler(row, pitch, yaw)
-				pose.orientation.x = quaternion[0]
-				pose.orientation.y = quaternion[1]
-				pose.orientation.z = quaternion[2]
-				pose.orientation.w = quaternion[3]
+                pose = Pose()
+                pose.position.x = tvecs[i][0][0]
+                pose.position.y = tvecs[i][0][1]
+                pose.position.z = tvecs[i][0][2]
+                pose.orientation.x = q_ra[0]
+                pose.orientation.y = q_ra[1]
+                pose.orientation.z = q_ra[2]
+                pose.orientation.w = q_ra[3]
+                markers.poses.append(pose)
+                markers.ids.append(id[0])
 
-				markers.poses.append(pose)
-				markers.ids.append(id[0])
-			
-			self.pub_.publish(markers)
+                cv2.aruco.drawDetectedMarkers(cv_image, corners)
+                cv2.drawFrameAxes(cv_image, self.calibration, self.distortion, rvecs[i], tvecs[i], 0.01)
+
+            for(markerCorner, markerID) in zip(corners, ids):
+                (topLeft, _, _, _) = markerCorner.reshape((4,2))
+                cv2.putText(cv_image, str(markerID), (int(topLeft[0]), int(topLeft[1]) - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+            self.pub_img_.publish(self.cv_bridge.cv2_to_imgmsg(cv_image, 'bgr8'))
+            self.pub_.publish(markers)
 
 def main(args=None):
 	rclpy.init(args=args)
