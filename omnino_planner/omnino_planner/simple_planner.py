@@ -10,24 +10,6 @@ from geometry_msgs.msg import Pose, TransformStamped, Twist
 from sensor_msgs.msg import Imu
 from ros2_aruco_interfaces.msg import ArucoMarkers
 
-def quaternion_diff(pose1, pose2):
-	return tf_transformations.quaternion_multiply(
-		[
-			pose2.orientation.x,
-			pose2.orientation.y,
-			pose2.orientation.z,
-			pose2.orientation.w
-		],
-		tf_transformations.quaternion_inverse(
-			[
-				pose1.orientation.x,
-				pose1.orientation.y,
-				pose1.orientation.z,
-				pose1.orientation.w,
-			]
-		)
-	)
-
 class PlannerNode(Node):
 	def __init__(self):
 		super().__init__("planner_node")
@@ -50,11 +32,11 @@ class PlannerNode(Node):
 
 		if path_param == 'curve':
 			alpha = 1
-			t = np.linspace(0, np.pi, 100)
+			t = np.linspace(0, np.pi, 50)
 			self.path = [
 				alpha * (-1) * np.sqrt(2) * (np.sin(t) * (np.sin(t)**2 + 2 * np.cos(t)**2 + 1)) / (np.sin(t)**2 + 1)**2,
 				alpha * (-1) * np.sqrt(2) * (np.sin(t)**2 + np.sin(t)**4 + np.cos(t)**2 * (-1 + np.sin(t)**2)) / (np.sin(t)**2 + 1)**2,
-				np.linspace(0.0, 0.0, 100)
+				np.linspace(0.0, 0.0, 50)
 			]
 
 		elif path_param == 'lemniscate':
@@ -76,13 +58,22 @@ class PlannerNode(Node):
 		else:
 			# Linear path
 			self.path = [
-				np.linspace(0.0, 0.0, 50),
-				np.linspace(0.0, 1.0, 50),
-				np.linspace(0.0, 0.0, 50)
+				np.diff(np.linspace(0.0, 0.0, 20)) / 0.5,
+				np.diff(np.linspace(0.0, 1.0, 20)) / 0.5,
+				np.diff(np.linspace(0.0, 0.0, 20)) / 0.5
 			]
 
-		self.pub_pose_ = self.create_publisher(Pose, "aruco_pose", 10)
+		self.origin = Pose()
+		self.origin.position.x = 0.6 	# Em metros
+		self.origin.position.y = 0.95 	# Em metros
+		self.origin.position.z = 1.5 	# Em metros
+		self.origin.orientation.x = 0.0
+		self.origin.orientation.y = 0.0
+		self.origin.orientation.z = 1.0
+		self.origin.orientation.w = 0.0
+
 		self.pub_cmd_vel_ = self.create_publisher(Twist, 'cmd_vel', 10)
+		self.pub_aruco_pose_ = self.create_publisher(Pose, 'aruco_pose', 10)
 
 		self.sub_aruco_ = self.create_subscription(ArucoMarkers, "aruco_markers", self.aruco_callback, 10)
 		self.sub_pose_ = self.create_subscription(Pose, "estimated_pose", self.pose_callback, 10)
@@ -92,42 +83,40 @@ class PlannerNode(Node):
 		self.br = TransformBroadcaster(self)
 
 	def aruco_callback(self, aruco_msg):
-		if self.initialPose.position.z == -1.0:
-			self.get_logger().info("Setting initial pose")
+		self.get_logger().info("Aruco msg: {}".format(this.aruco_msg)) # remover apos testar
+		
+		# Vector-Quaternion: World-ArUco
+		t_wa = np.array(self.origin.position)
+		q_wa = np.array(self.origin.orientation)
 
-			self.initialPose.position.x = aruco_msg.poses[0].position.x
-			self.initialPose.position.y = aruco_msg.poses[0].position.y
-			self.initialPose.position.z = 0.0
-			self.initialPose.orientation.x = aruco_msg.poses[0].orientation.x
-			self.initialPose.orientation.y = aruco_msg.poses[0].orientation.y
-			self.initialPose.orientation.z = aruco_msg.poses[0].orientation.z
-			self.initialPose.orientation.w = aruco_msg.poses[0].orientation.w
+		# Vector-Quaternion: Robot-ArUco
+		t_ra = np.array(aruco_msg.position)
+		q_ra = np.array(aruco_msg.orientation)
 
-			self.previusPose = np.copy(self.initialPose)
-			self.sendTf('world', 'base_link', 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0)
-		else:
-			q = quaternion_diff(self.initialPose, aruco_msg.poses[0])
-			self.sendTf(
-				'world',
-				'base_link',
-				aruco_msg.poses[0].position.x - self.initialPose.position.x,
-				aruco_msg.poses[0].position.y - self.initialPose.position.y,
-				0.0,
-				q[0], q[1], q[2], q[3]
-			)
+		# Vector-Quaternion: World-Robot
+		q_wr = tf_transformations.quaternion_multiply(q_wa, tf_transformations.quaternion_inverse(q_ra))
+		t_wr = t_wa - this.qv_mult(q_wr, t_ra)
 
-			pose = Pose()
-			pose.position.x = aruco_msg.poses[0].position.x - self.previusPose.position.x
-			pose.position.y = aruco_msg.poses[0].position.y - self.previusPose.position.y
-			pose.position.z = 0.0
-			q = quaternion_diff(self.previusPose, aruco_msg.poses[0])
-			pose.orientation.x = q[0]
-			pose.orientation.y = q[1]
-			pose.orientation.z = q[2]
-			pose.orientation.w = q[3]
-			self.pub_pose_.publish(pose)
+		aruco_pose = Pose()
+		aruco_pose.position.x = t_wr[0]
+		aruco_pose.position.y = t_wr[1]
+		aruco_pose.position.z = t_wr[2]
+		aruco_pose.orientation.x = q_wr[0]
+		aruco_pose.orientation.y = q_wr[1]
+		aruco_pose.orientation.z = q_wr[2]
+		aruco_pose.orientation.w = q_wr[3]
 
-			self.previusPose = pose
+        self.pub_aruco_pose(aruco_pose)
+
+	def qv_mult(self, q1, v1):
+		# comment this out if v1 doesn't need to be a unit vector
+		v1 = tf_transformations.unit_vector(v1)
+		q2 = list(v1)
+		q2.append(0.0)
+		return tf_transformations.quaternion_multiply(
+			tf_transformations.quaternion_multiply(q1, q2),
+			tf_transformations.quaternion_conjugate(q1)
+		)[:3]
 
 	def pose_callback(self, pose_msg):
 		self.sendTf(
@@ -155,9 +144,9 @@ class PlannerNode(Node):
 			self.pub_cmd_vel_.publish(vel)
 			return
 		
-		vel.linear.x = self.path[0][self.i]
-		vel.linear.y = self.path[1][self.i]
-		vel.angular.z = self.path[2][self.i]
+		vel.linear.x = self.path[0][self.i] * 10
+		vel.linear.y = self.path[1][self.i] * 10
+		vel.angular.z = self.path[2][self.i] * 10
 		self.pub_cmd_vel_.publish(vel)
 		self.i += 1
 
@@ -173,7 +162,6 @@ class PlannerNode(Node):
 			self.ay.append(imu_msg.linear_acceleration.y)
 			self.vz.append(imu_msg.angular_velocity.z)
 		
-
 	def sendTf(self, header_id, child_id, x, y, z, q0, q1, q2, q3):
 		t = TransformStamped()
 		t.header.stamp = self.get_clock().now().to_msg()
