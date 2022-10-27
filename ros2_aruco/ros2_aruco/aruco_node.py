@@ -14,27 +14,22 @@ class ArucoNode(Node):
 	def __init__(self):
 		super().__init__('aruco_node')
 
-		self.declare_parameter("marker_size", .02)
-		self.declare_parameter("aruco_dict", "DICT_ARUCO_ORIGINAL")
+		self.declare_parameter("marker_size", 0.14)	# Em metros
+		self.declare_parameter("aruco_dict", "DICT_5X5_1000")
 		self.declare_parameter("image_topic", "/camera/image_raw")
 
-		self.marker_size = self.get_parameter(
-			"marker_size").get_parameter_value().double_value
-		aruco_dict = self.get_parameter(
-			"aruco_dict").get_parameter_value().string_value
+		self.marker_size = self.get_parameter("marker_size").get_parameter_value().double_value
+		aruco_dict = self.get_parameter("aruco_dict").get_parameter_value().string_value
 		aruco_dict_id = cv2.aruco.__getattribute__(aruco_dict)
-		image_topic = self.get_parameter(
-			"image_topic").get_parameter_value().string_value
+		image_topic = self.get_parameter("image_topic").get_parameter_value().string_value
 
 		self.cv_bridge = CvBridge()
 
 		self.aruco_dict = cv2.aruco.Dictionary_get(aruco_dict_id)
 		self.aruco_params = cv2.aruco.DetectorParameters_create()
 
-		self.calibration = np.array([[570.99457492, 0.0, 325.64860801], [
-									0.0, 434.016448, 234.74391119], [0.0, 0.0, 1.0]])
-		self.distortion = np.array(
-			[[2.18105604, -8.03481164, -0.25181316, 0.21993668, 20.62316516]])
+		self.calibration = np.array([[570.99457492, 0.0, 325.64860801], [0.0, 434.016448, 234.74391119], [0.0, 0.0, 1.0]])
+		self.distortion = np.array([[2.18105604, -8.03481164, -0.25181316, 0.21993668, 20.62316516]])
 
 		self.create_subscription(Image, image_topic, self.image_callback, 10)
 		self.pub_ = self.create_publisher(ArucoMarkers, 'aruco_markers', 10)
@@ -65,7 +60,7 @@ class ArucoNode(Node):
 				pose.orientation.z = q_ra[2]
 				pose.orientation.w = q_ra[3]
 				markers.poses.append(pose)
-				markers.ids.append(id[0])
+				markers.ids.append(id[i])
 
 				cv2.aruco.drawDetectedMarkers(cv_image, corners)
 				cv2.drawFrameAxes(cv_image, self.calibration, self.distortion, rvecs[i], tvecs[i], 0.01)
