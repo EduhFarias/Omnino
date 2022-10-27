@@ -11,7 +11,8 @@ class Kalman:
 		self.y = np.matrix(np.zeros(3))  # Measurement vector
 		self.H = np.matrix(np.eye(3))  # Observation matrix
 
-		process_var = [0.02, 0.04, 0.08]
+		process_var = [0.001, 0.0027, 0.0148]
+		# process_var = [0.02, 0.04, 0.08]
 		# process_var = [0.002, 0.004, 0.008]
 		# process_var = [0.0001, 0.0002, 0.0005] caso seja da posiçao e nao accel
 		measurement_var = [0.1, 0.1, 0.1]
@@ -34,9 +35,6 @@ class Kalman:
 		self.G = np.matrix([[dt**2, 0, 0], [0, dt**2, 0], [0, 0, dt]])
 
 	def getMeasurementVector(self, aruco_pose):
-		# checar o tipo da mensagem e crir condiçao coisa util
-		print("pose do aruco", aruco_pose)
-		# tambem checar a funçao de quatertion para euler do transforms3d e substituir abaixo
 		if aruco_pose:
 			_, _, yaw = transforms3d.euler.quat2euler(
 				[
