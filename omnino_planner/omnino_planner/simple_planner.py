@@ -83,7 +83,6 @@ class PlannerNode(Node):
 		self.br = TransformBroadcaster(self)
 
 	def aruco_callback(self, aruco_msg):
-		self.get_logger().info("Aruco msg: {}".format(aruco_msg)) # remover apos testar
 		# aruco_msg é composto de header, ids, poses.
 		# tratar qual o id ou ids serão utilizados aqui, caso so um mesmo: poses[0] -> .position e .orientation
 		
@@ -94,7 +93,7 @@ class PlannerNode(Node):
 		# Vector-Quaternion: Robot-ArUco
 		t_ra = np.array([aruco_msg.poses[0].position.x, aruco_msg.poses[0].position.y, aruco_msg.poses[0].position.z])
 		q_ra = np.array([aruco_msg.poses[0].orientation.x, aruco_msg.poses[0].orientation.y, aruco_msg.poses[0].orientation.z, aruco_msg.poses[0].orientation.w])
-		self.get_logger().info("translacao: {} rotacao: {}".format(t_ra, q_ra)) # remover apos testar
+
 		# Vector-Quaternion: World-Robot
 		q_wr = tf_transformations.quaternion_multiply(q_wa, tf_transformations.quaternion_inverse(q_ra))
 		t_wr = t_wa - self.qv_mult(q_wr, t_ra)
@@ -112,7 +111,7 @@ class PlannerNode(Node):
 
 	def qv_mult(self, q1, v1):
 		# comment this out if v1 doesn't need to be a unit vector
-		v1 = tf_transformations.unit_vector(v1)
+		# v1 = tf_transformations.unit_vector(v1)
 		q2 = list(v1)
 		q2.append(0.0)
 		return tf_transformations.quaternion_multiply(
