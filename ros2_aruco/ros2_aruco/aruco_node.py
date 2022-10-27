@@ -54,8 +54,7 @@ class ArucoNode(Node):
 			for i, id in enumerate(ids):
 				theta = np.linalg.norm(rvecs[i])
 				n = rvecs[i]/theta
-				self.get_logger().info('theta {}, n: {}'.format(theta, n))
-				qra = tf_transformations.quaternion_about_axis(theta, n)
+				qra = tf_transformations.quaternion_about_axis(theta, n[0])
 
 				pose = Pose()
 				pose.position.x = tvecs[i][0][0]
