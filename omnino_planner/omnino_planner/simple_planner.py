@@ -92,8 +92,8 @@ class PlannerNode(Node):
 		q_wa = np.array(self.origin.orientation)
 
 		# Vector-Quaternion: Robot-ArUco
-		t_ra = np.array(aruco_msg.poses[0].position)
-		q_ra = np.array(aruco_msg.poses[0].orientation)
+		t_ra = np.array([aruco_msg.poses[0].position.x, aruco_msg.poses[0].position.y, aruco_msg.poses[0].position.z])
+		q_ra = np.array([aruco_msg.poses[0].orientation.x, aruco_msg.poses[0].orientation.y, aruco_msg.poses[0].orientation.z, aruco_msg.poses[0].orientation.w])
 		self.get_logger().info("translacao: {} rotacao: {}".format(t_ra, q_ra)) # remover apos testar
 		# Vector-Quaternion: World-Robot
 		q_wr = tf_transformations.quaternion_multiply(q_wa, tf_transformations.quaternion_inverse(q_ra))
