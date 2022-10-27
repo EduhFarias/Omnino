@@ -84,15 +84,17 @@ class PlannerNode(Node):
 
 	def aruco_callback(self, aruco_msg):
 		self.get_logger().info("Aruco msg: {}".format(aruco_msg)) # remover apos testar
+		# aruco_msg é composto de header, ids, poses.
+		# tratar qual o id ou ids serão utilizados aqui, caso so um mesmo: poses[0] -> .position e .orientation
 		
 		# Vector-Quaternion: World-ArUco
 		t_wa = np.array(self.origin.position)
 		q_wa = np.array(self.origin.orientation)
 
 		# Vector-Quaternion: Robot-ArUco
-		t_ra = np.array(aruco_msg.position)
-		q_ra = np.array(aruco_msg.orientation)
-
+		t_ra = np.array(aruco_msg.poses[0].position)
+		q_ra = np.array(aruco_msg.poses[0].orientation)
+		self.get_logger().info("translacao: {} rotacao: {}".format(t_ra, q_ra)) # remover apos testar
 		# Vector-Quaternion: World-Robot
 		q_wr = tf_transformations.quaternion_multiply(q_wa, tf_transformations.quaternion_inverse(q_ra))
 		t_wr = t_wa - self.qv_mult(q_wr, t_ra)
