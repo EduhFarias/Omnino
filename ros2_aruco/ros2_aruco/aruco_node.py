@@ -50,7 +50,7 @@ class ArucoNode(Node):
 				theta = np.linalg.norm(rvecs[i])
 				n = rvecs[i]/theta
 				q_ra = tf_transformations.quaternion_about_axis(theta, n[0])
-				self.get_logger().info('ids: {}, id {}, i {}'.format(ids, id, i)) # remover apos teste
+
 				pose = Pose()
 				pose.position.x = tvecs[i][0][0]
 				pose.position.y = tvecs[i][0][1]
@@ -60,7 +60,7 @@ class ArucoNode(Node):
 				pose.orientation.z = q_ra[2]
 				pose.orientation.w = q_ra[3]
 				markers.poses.append(pose)
-				markers.ids.append(id[i])
+				markers.ids.append(id[0])
 
 				cv2.aruco.drawDetectedMarkers(cv_image, corners)
 				cv2.drawFrameAxes(cv_image, self.calibration, self.distortion, rvecs[i], tvecs[i], 0.01)
