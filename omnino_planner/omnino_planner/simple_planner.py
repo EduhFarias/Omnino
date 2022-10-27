@@ -108,7 +108,7 @@ class PlannerNode(Node):
 		aruco_pose.orientation.z = q_wr[2]
 		aruco_pose.orientation.w = q_wr[3]
 
-		self.pub_aruco_pose(aruco_pose)
+		self.pub_aruco_pose_(aruco_pose)
 
 	def qv_mult(self, q1, v1):
 		# comment this out if v1 doesn't need to be a unit vector
