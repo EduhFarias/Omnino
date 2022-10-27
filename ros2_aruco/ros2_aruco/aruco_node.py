@@ -45,7 +45,7 @@ class ArucoNode(Node):
 
 		if ids is not None:
 			rvecs, tvecs, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners, self.marker_size, self.calibration, self.distortion)
-
+			self.get_logger().info('ids: {}'.format(ids)) # remover apos teste
 			for i, id in enumerate(ids):
 				theta = np.linalg.norm(rvecs[i])
 				n = rvecs[i]/theta
