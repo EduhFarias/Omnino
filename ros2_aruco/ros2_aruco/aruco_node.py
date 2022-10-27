@@ -45,12 +45,12 @@ class ArucoNode(Node):
 
 		if ids is not None:
 			rvecs, tvecs, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners, self.marker_size, self.calibration, self.distortion)
-			self.get_logger().info('ids: {}'.format(ids)) # remover apos teste
+
 			for i, id in enumerate(ids):
 				theta = np.linalg.norm(rvecs[i])
 				n = rvecs[i]/theta
 				q_ra = tf_transformations.quaternion_about_axis(theta, n[0])
-
+				self.get_logger().info('ids: {}'.format(ids, id, i)) # remover apos teste
 				pose = Pose()
 				pose.position.x = tvecs[i][0][0]
 				pose.position.y = tvecs[i][0][1]
