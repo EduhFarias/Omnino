@@ -83,7 +83,7 @@ class PlannerNode(Node):
 		self.br = TransformBroadcaster(self)
 
 	def aruco_callback(self, aruco_msg):
-		self.get_logger().info("Aruco msg: {}".format(self.aruco_msg)) # remover apos testar
+		self.get_logger().info("Aruco msg: {}".format(aruco_msg)) # remover apos testar
 		
 		# Vector-Quaternion: World-ArUco
 		t_wa = np.array(self.origin.position)
