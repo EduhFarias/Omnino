@@ -31,10 +31,12 @@ class ArucoNode(Node):
 		self.aruco_dict = cv2.aruco.Dictionary_get(aruco_dict_id)
 		self.aruco_params = cv2.aruco.DetectorParameters_create()
 
-		self.calibration = np.array([[570.99457492, 0.0, 325.64860801], [
-									0.0, 434.016448, 234.74391119], [0.0, 0.0, 1.0]])
-		self.distortion = np.array(
-			[[2.18105604, -8.03481164, -0.25181316, 0.21993668, 20.62316516]])
+		self.calibration = np.array([
+			[699.08203923, 0.0, 310.87345416]
+ 			[0.0, 697.48438754, 289.10998168]
+ 			[0.0, 0.0 ,1.0]
+		])
+		self.distortion = np.array([[1.02586647e-01, 3.32650865e+00, 2.53773017e-02, 6.84860815e-03, -1.96358893e+01]])
 
 		self.create_subscription(Image, image_topic, self.image_callback, 10)
 		self.pub_ = self.create_publisher(ArucoMarkers, 'aruco_markers', 10)
