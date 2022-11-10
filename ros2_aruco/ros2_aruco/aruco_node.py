@@ -29,8 +29,8 @@ class ArucoNode(Node):
 		self.aruco_params = cv2.aruco.DetectorParameters_create()
 
 		self.calibration = np.array([
-			[699.08203923, 0.0, 310.87345416]
- 			[0.0, 697.48438754, 289.10998168]
+			[699.08203923, 0.0, 310.87345416],
+ 			[0.0, 697.48438754, 289.10998168],
  			[0.0, 0.0 ,1.0]
 		])
 		self.distortion = np.array([[1.02586647e-01, 3.32650865e+00, 2.53773017e-02, 6.84860815e-03, -1.96358893e+01]])
