@@ -14,17 +14,14 @@ class ArucoNode(Node):
 	def __init__(self):
 		super().__init__('aruco_node')
 
-		self.declare_parameter("marker_size", .02)
-		self.declare_parameter("aruco_dict", "DICT_ARUCO_ORIGINAL")
+		self.declare_parameter("marker_size", 0.14)	# Em metros
+		self.declare_parameter("aruco_dict", "DICT_5X5_1000")
 		self.declare_parameter("image_topic", "/camera/image_raw")
 
-		self.marker_size = self.get_parameter(
-			"marker_size").get_parameter_value().double_value
-		aruco_dict = self.get_parameter(
-			"aruco_dict").get_parameter_value().string_value
+		self.marker_size = self.get_parameter("marker_size").get_parameter_value().double_value
+		aruco_dict = self.get_parameter("aruco_dict").get_parameter_value().string_value
 		aruco_dict_id = cv2.aruco.__getattribute__(aruco_dict)
-		image_topic = self.get_parameter(
-			"image_topic").get_parameter_value().string_value
+		image_topic = self.get_parameter("image_topic").get_parameter_value().string_value
 
 		self.cv_bridge = CvBridge()
 
