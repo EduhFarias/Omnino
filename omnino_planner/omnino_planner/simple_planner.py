@@ -30,38 +30,39 @@ class PlannerNode(Node):
 
 		path_param = self.get_parameter('path').get_parameter_value().string_value
 
-		if path_param == 'curve':
-			alpha = 1
-			t = np.linspace(0, np.pi, 50)
-			self.path = [
-				alpha * (-1) * np.sqrt(2) * (np.sin(t) * (np.sin(t)**2 + 2 * np.cos(t)**2 + 1)) / (np.sin(t)**2 + 1)**2,
-				alpha * (-1) * np.sqrt(2) * (np.sin(t)**2 + np.sin(t)**4 + np.cos(t)**2 * (-1 + np.sin(t)**2)) / (np.sin(t)**2 + 1)**2,
-				np.linspace(0.0, 0.0, 50)
-			]
-
-		elif path_param == 'lemniscate':
-			alpha = 1
-			t = np.linspace(0, 2*np.pi, 100)
-			self.path = [
-				alpha * (-1) * np.sqrt(2) * (np.sin(t) * (np.sin(t)**2 + 2 * np.cos(t)**2 + 1)) / (np.sin(t)**2 + 1)**2,
-				alpha * (-1) * np.sqrt(2) * (np.sin(t)**2 + np.sin(t)**4 + np.cos(t)**2 * (-1 + np.sin(t)**2)) / (np.sin(t)**2 + 1)**2,
-				np.linspace(0.0, 0.0, 100)
-			]
-
-		elif path_param == 'L':
-			self.path = [
-				np.append(np.linspace(0.0, 0.0, 50), np.linspace(0.0, 0.4, 50)),
-				np.append(np.linspace(0.0, 1.0, 50), np.linspace(1.0, 1.0, 50)),
-				np.linspace(0.0, 0.0, 100)
-			]
-
-		else:
+		if path_param == 'linear':
 			# Linear path
 			self.path = [
-				np.diff(np.linspace(0.0, 0.0, 20)) / 0.5,
-				np.diff(np.linspace(0.0, 1.0, 20)) / 0.5,
-				np.diff(np.linspace(0.0, 0.0, 20)) / 0.5
-			]
+					np.linspace(0.0, 0.0, 10),
+					np.linspace(1.0, 1.0, 10),
+					np.linspace(0.0, 0.0, 10)
+				]
+			
+		elif path_param == 'L':
+			# L-shaped path
+			self.path = [
+					np.append(np.linspace(0.0, 0.0, 10), np.linspace(1.0, 1.0, 10)),
+					np.append(np.linspace(1.0, 1.0, 10), np.linspace(0.0, 0.0, 10)),
+					np.linspace(0.0, 0.0, 20)
+				]
+
+		elif path_param == 'curve':
+			# S-shaped path
+			alpha = 1
+			t = np.linspace(0, np.pi, 30)
+			x = alpha * (-1) * np.sqrt(2) * (np.sin(t) * (np.sin(t)**2 + 2 * np.cos(t)**2 + 1)) / (np.sin(t)**2 + 1)**2
+			y = alpha * (-1) * np.sqrt(2) * (np.sin(t)**2 + np.sin(t)**4 + np.cos(t)**2 * (-1 + np.sin(t)**2)) / (np.sin(t)**2 + 1)**2
+			w = np.arccos(np.clip(np.dot(x, y)/np.linalg.norm(x)/np.linalg.norm(y), -1, 1))
+			self.path = [x, y, np.linspace(0, 0, 30)]
+
+		else:
+			# Lemniscate path
+			alpha = 1
+			t = np.linspace(0, 2*np.pi, 30)
+			x = alpha * (-1) * np.sqrt(2) * (np.sin(t) * (np.sin(t)**2 + 2 * np.cos(t)**2 + 1)) / (np.sin(t)**2 + 1)**2
+			y = alpha * (-1) * np.sqrt(2) * (np.sin(t)**2 + np.sin(t)**4 + np.cos(t)**2 * (-1 + np.sin(t)**2)) / (np.sin(t)**2 + 1)**2
+			w = np.arccos(np.clip(np.dot(x, y)/np.linalg.norm(x)/np.linalg.norm(y), -1, 1))
+			self.path = [x, y, np.linspace(0, 0, 30)]
 
 		self.origin = Pose()
 		self.origin.position.x = 0.6 	# Em metros
