@@ -33,16 +33,16 @@ class PlannerNode(Node):
 		if path_param == 'linear':
 			# Linear path
 			self.path = [
-					np.linspace(0.0, 0.0, 10),
 					np.linspace(1.0, 1.0, 10),
+					np.linspace(0.0, 0.0, 10),
 					np.linspace(0.0, 0.0, 10)
 				]
 			
 		elif path_param == 'L':
 			# L-shaped path
 			self.path = [
-					np.append(np.linspace(0.0, 0.0, 10), np.linspace(1.0, 1.0, 10)),
 					np.append(np.linspace(1.0, 1.0, 10), np.linspace(0.0, 0.0, 10)),
+					np.append(np.linspace(0.0, 0.0, 10), np.linspace(1.0, 1.0, 10)),
 					np.linspace(0.0, 0.0, 20)
 				]
 
@@ -65,8 +65,8 @@ class PlannerNode(Node):
 			self.path = [x, y, np.linspace(0, 0, 30)]
 
 		self.origin = Pose()
-		self.origin.position.x = 0.6 	# Em metros
-		self.origin.position.y = 0.95 	# Em metros
+		self.origin.position.x = 0.9 	# Em metros
+		self.origin.position.y = 0.0 	# Em metros
 		self.origin.position.z = 1.5 	# Em metros
 		self.origin.orientation.x = 0.0
 		self.origin.orientation.y = 0.0
